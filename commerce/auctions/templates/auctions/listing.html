@@ -1,0 +1,89 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+{% if message %}
+    <div class="alert alert-info" role="alert">
+        {{ message }}
+    </div>
+{% endif %}
+<h2>{{ auction.title }}</h2>
+<div class="row">
+    <div class="col-md-6">
+        {% if auction.photo %}
+            <img src="{{ auction.photo }}" alt="Auction photo" class="auction-photo img-fluid">
+        {% else %}
+            <p>No photo available</p>
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <h3 class="mt-5">Description</h3>
+        <p>{{ auction.description }}</p>
+        <h7 class="mt-5">Category: {{ auction.category }}</h7>
+        <p><h5 class="mt-5">Current Bid: ${{ auction.current_bid }}</h5></p>
+        <form action="{% url 'listing' auction.id %}" method="post">
+            {% csrf_token %}
+            {% if not is_watching %}
+                <input type="hidden" name="add_watch_auction" value="add_watch_auction">
+                <button type="submit" class="btn btn-primary">Add to Watchlist</button>
+            {% else %}
+                <input type="hidden" name="remove_watch_auction" value="remove_watch_auction">
+                <button type="submit" class="btn btn-danger">Remove from Watchlist</button>
+            {% endif %}
+        </form>
+        <form action="{% url 'listing' auction.id %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="bid_amount">Bid Amount:</label>
+                <input type="number" name="bid_amount" id="bid_amount" step="0.01" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Place Bid</button>
+        </form>
+    </div>
+</div>
+
+<div>
+    {% if auction.closed_status %}
+        <h4><p>Auction closed. Winner: {{ auction.winner }}</p></h4>
+    {% else %}
+    {% if is_creator %}
+    <form action="{% url 'listing' auction.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="close_auction" value="close_auction">
+        <div class="form-group">
+            <button type="submit" class="btn btn-danger">Close Auction</button>
+        </div>
+    </form>
+{% endif %}
+    {% endif %}
+</div>
+<h3 class="mt-5">Add Comment</h3>
+<form action="{% url 'listing' auction.id %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="add_comment">Comment:</label>
+        <textarea name="add_comment" id="add_comment" rows="3" class="form-control" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Comment</button>
+</form>
+
+<h3 class="mt-5">Comments</h3>
+{% for comment in comments %}
+<div class="card">
+    <div class="card-header">By <em>{{ comment.user }}</em> on {{ comment.posted }}</div>
+    <div class="card-body">
+        <p>{{ comment.comment }}</p>
+    </div>
+</div>
+{% empty %}
+<div>No comments available.</div>
+{% endfor %}
+
+<h5>Bid History:</h5>
+<ul>
+    {% for bid in bids %}
+        <li>{{ bid }}</a></li>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}

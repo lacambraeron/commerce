@@ -1,0 +1,48 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Closed Listings</h2>
+
+    <div class="container">
+        <div class="row">
+            {% for listing in listings %}
+            <!--CS50.ai suggestion to use "cards" to display listings. I took the idea and looked it up on Bootstrap-->
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    {% if listing.photo %}
+                    <a href="{% url 'listing' listing.id %}">
+                        <img src="{{ listing.photo }}" class="card-img-top" alt="Auction Photo">
+                    </a>
+                    {% else %}
+                    <a href="{% url 'listing' listing.id %}">
+                            <p class="card-text text-center">NO IMAGE</p>
+                    </a>
+                    {% endif %}
+                    <div class="card-body">
+                        <a href="{% url 'listing' listing.id %}">
+                            <h5 class="card-title">{{ listing.title }}</h5>
+                        </a>
+                        <p class="card-text">{{ listing.description }}</p>
+                        <p class="card-text">Current Bid: ${{ listing.current_bid }}</p>
+                    <div class="card-footer">
+                        <p><small class="text-muted">Added: {{ listing.created }}</small></p>
+                        <p><small class="text-muted">Listed By: {{ listing.creator }}</small></p>
+                        <p><small class="text-muted">Category: {{ listing.category }}</small></p>
+                        {% if not listing.closed_status %}
+                        <p><small class="text-muted">Status: Open</small></p>
+                        {% else %}
+                        <p><small class="text-muted">Status: Closed</small></p>
+                        {% endif %}
+                    </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col">
+                <p>No Closed Listings</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
